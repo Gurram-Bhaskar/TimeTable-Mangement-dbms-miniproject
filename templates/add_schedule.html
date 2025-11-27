@@ -1,0 +1,118 @@
+{% extends "layout.html" %}
+
+{% block title %}Add Schedule - Timetable System{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <div class="page-header">
+        <h1>Add New Schedule</h1>
+        <p>Assign classes with automatic conflict detection</p>
+    </div>
+    
+    <div class="form-container">
+        <form method="POST" action="{{ url_for('add_schedule') }}" class="schedule-form">
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="day">Day <span class="required">*</span></label>
+                    <select id="day" name="day" required>
+                        <option value="">-- Select Day --</option>
+                        <option value="Monday">Monday</option>
+                        <option value="Tuesday">Tuesday</option>
+                        <option value="Wednesday">Wednesday</option>
+                        <option value="Thursday">Thursday</option>
+                        <option value="Friday">Friday</option>
+                        <option value="Saturday">Saturday</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="slot_id">Time Slot <span class="required">*</span></label>
+                    <select id="slot_id" name="slot_id" required>
+                        <option value="">-- Select Time Slot --</option>
+                        {% for slot in time_slots %}
+                        <option value="{{ slot.slot_id }}">
+                            {{ slot.start_time }} - {{ slot.end_time }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="faculty_id">Faculty <span class="required">*</span></label>
+                    <select id="faculty_id" name="faculty_id" required>
+                        <option value="">-- Select Faculty --</option>
+                        {% for faculty in faculties %}
+                        <option value="{{ faculty.faculty_id }}">
+                            {{ faculty.name }} ({{ faculty.dept }})
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="sub_code">Subject <span class="required">*</span></label>
+                    <select id="sub_code" name="sub_code" required>
+                        <option value="">-- Select Subject --</option>
+                        {% for subject in subjects %}
+                        <option value="{{ subject.sub_code }}">
+                            {{ subject.sub_name }} ({{ subject.sub_type }})
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="room_no">Room <span class="required">*</span></label>
+                    <select id="room_no" name="room_no" required>
+                        <option value="">-- Select Room --</option>
+                        {% for room in rooms %}
+                        <option value="{{ room.room_no }}">
+                            {{ room.room_no }} - {{ room.room_type }} (Capacity: {{ room.capacity }})
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="batch_id">Batch <span class="required">*</span></label>
+                    <select id="batch_id" name="batch_id" required>
+                        <option value="">-- Select Batch --</option>
+                        {% for batch in batches %}
+                        <option value="{{ batch.batch_id }}">
+                            {{ batch.batch_id }} - Sem {{ batch.semester }} ({{ batch.dept }})
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    ✓ Add Schedule
+                </button>
+                <button type="reset" class="btn btn-secondary">
+                    ↺ Reset Form
+                </button>
+                <a href="{{ url_for('dashboard') }}" class="btn btn-outline">
+                    ← Back to Dashboard
+                </a>
+            </div>
+        </form>
+    </div>
+    
+    <div class="info-box">
+        <h3>🔍 Conflict Detection</h3>
+        <p>The system automatically checks for scheduling conflicts:</p>
+        <ul>
+            <li><strong>Faculty Conflict:</strong> Same faculty cannot be assigned to multiple classes at the same time</li>
+            <li><strong>Room Conflict:</strong> Same room cannot be used by multiple batches simultaneously</li>
+            <li><strong>Batch Conflict:</strong> Same batch cannot have multiple classes at the same time</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}
