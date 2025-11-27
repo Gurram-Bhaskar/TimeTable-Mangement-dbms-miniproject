@@ -1,0 +1,138 @@
+{% extends "layout.html" %}
+
+{% block title %}Room Availability - Timetable System{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <div class="page-header">
+        <h1>Room Availability</h1>
+        <p>Check which rooms are free or occupied</p>
+    </div>
+    
+    <div class="filter-container">
+        <form method="POST" action="{{ url_for('room_availability') }}" class="filter-form">
+            <div class="form-group inline-group">
+                <label for="room_no">Select Room:</label>
+                <select id="room_no" name="room_no" required>
+                    <option value="">-- Choose a Room --</option>
+                    {% for room in rooms %}
+                    <option value="{{ room.room_no }}" {% if selected_room == room.room_no %}selected{% endif %}>
+                        {{ room.room_no }} - {{ room.room_type }} (Capacity: {{ room.capacity }})
+                    </option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn btn-primary">Check Availability</button>
+            </div>
+        </form>
+    </div>
+    
+    {% if timetable %}
+    <div class="timetable-section">
+        <div class="timetable-header">
+            <h2>{{ room_info.room_no }} - {{ room_info.room_type }} (Capacity: {{ room_info.capacity }})</h2>
+        </div>
+        
+        <div class="legend">
+            <span class="legend-item"><span class="legend-box free-box"></span> Free</span>
+            <span class="legend-item"><span class="legend-box occupied-box"></span> Occupied</span>
+        </div>
+        
+        <div class="timetable-wrapper">
+            <table class="timetable-grid">
+                <thead>
+                    <tr>
+                        <th class="time-column">Time Slot</th>
+                        {% for day in timetable.days %}
+                        <th>{{ day }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for slot_time, slot_data in timetable.grid.items() %}
+                    <tr>
+                        <td class="time-column">
+                            <strong>{{ slot_time }}</strong>
+                        </td>
+                        {% for day in timetable.days %}
+                        <td class="schedule-cell">
+                            {{ slot_data[day]|safe }}
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="timetable-actions">
+            <button onclick="window.print()" class="btn btn-secondary">🖨️ Print Schedule</button>
+            <a href="{{ url_for('dashboard') }}" class="btn btn-outline">← Back to Dashboard</a>
+        </div>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon">🏫</div>
+        <h3>No Room Selected</h3>
+        <p>Please select a room from the dropdown above to check its availability.</p>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    .legend {
+        display: flex;
+        gap: 2rem;
+        justify-content: center;
+        margin-bottom: 1rem;
+    }
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .legend-box {
+        width: 20px;
+        height: 20px;
+        border-radius: 4px;
+    }
+    .free-box {
+        background-color: #d1fae5;
+        border: 1px solid #10b981;
+    }
+    .occupied-box {
+        background-color: #fee2e2;
+        border: 1px solid #ef4444;
+    }
+    .free {
+        color: #065f46;
+        font-weight: 600;
+    }
+    .occupied {
+        color: #991b1b;
+    }
+    .schedule-cell .free {
+        display: block;
+        padding: 0.5rem;
+        background-color: #d1fae5;
+        border-radius: 4px;
+    }
+    .schedule-cell .occupied {
+        display: block;
+        padding: 0.5rem;
+        background-color: #fee2e2;
+        border-radius: 4px;
+    }
+    
+    @media print {
+        .navbar, .filter-container, .timetable-actions, .footer, .legend {
+            display: none !important;
+        }
+        .timetable-wrapper {
+            overflow: visible !important;
+        }
+        .timetable-grid {
+            page-break-inside: avoid;
+        }
+    }
+</style>
+{% endblock %}

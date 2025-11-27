@@ -270,6 +270,283 @@ def view_timetable():
                          timetable=timetable_data,
                          selected_batch=selected_batch)
 
+@app.route('/manage_schedule', methods=['GET', 'POST'])
+def manage_schedule():
+    """
+    Manage Schedule Page - View and Delete schedule entries
+    """
+    if not session.get('logged_in'):
+        flash('Please login first.', 'error')
+        return redirect(url_for('login'))
+    
+    conn = get_db_connection()
+    if not conn:
+        flash('Database connection failed!', 'error')
+        return redirect(url_for('dashboard'))
+    
+    cursor = conn.cursor(dictionary=True)
+    
+    # Fetch all batches for dropdown
+    cursor.execute("SELECT batch_id, semester, dept FROM Batches ORDER BY batch_id")
+    batches = cursor.fetchall()
+    
+    schedules = []
+    selected_batch = None
+    
+    if request.method == 'POST':
+        selected_batch = request.form.get('batch_id')
+        
+        # Fetch all schedules for the selected batch
+        query = """
+            SELECT 
+                s.alloc_id,
+                s.day,
+                ts.start_time,
+                ts.end_time,
+                sub.sub_name,
+                f.name as faculty_name,
+                s.room_no
+            FROM Schedule s
+            JOIN Time_Slots ts ON s.slot_id = ts.slot_id
+            JOIN Subjects sub ON s.sub_code = sub.sub_code
+            JOIN Faculty f ON s.faculty_id = f.faculty_id
+            WHERE s.batch_id = %s
+            ORDER BY 
+                FIELD(s.day, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'),
+                ts.start_time
+        """
+        cursor.execute(query, (selected_batch,))
+        schedules = cursor.fetchall()
+    
+    cursor.close()
+    conn.close()
+    
+    return render_template('manage_schedule.html', 
+                         batches=batches, 
+                         schedules=schedules,
+                         selected_batch=selected_batch)
+
+@app.route('/delete_schedule/<int:alloc_id>')
+def delete_schedule(alloc_id):
+    """Delete a schedule entry"""
+    if not session.get('logged_in'):
+        flash('Please login first.', 'error')
+        return redirect(url_for('login'))
+    
+    conn = get_db_connection()
+    if not conn:
+        flash('Database connection failed!', 'error')
+        return redirect(url_for('dashboard'))
+    
+    cursor = conn.cursor()
+    
+    try:
+        cursor.execute("DELETE FROM Schedule WHERE alloc_id = %s", (alloc_id,))
+        conn.commit()
+        flash('Schedule deleted successfully!', 'success')
+    except mysql.connector.Error as err:
+        flash(f'Error deleting schedule: {err}', 'error')
+    
+    cursor.close()
+    conn.close()
+    
+    return redirect(url_for('manage_schedule'))
+
+@app.route('/faculty_timetable', methods=['GET', 'POST'])
+def faculty_timetable():
+    """
+    View Faculty Timetable - See individual faculty schedules
+    """
+    if not session.get('logged_in'):
+        flash('Please login first.', 'error')
+        return redirect(url_for('login'))
+    
+    conn = get_db_connection()
+    if not conn:
+        flash('Database connection failed!', 'error')
+        return redirect(url_for('dashboard'))
+    
+    cursor = conn.cursor(dictionary=True)
+    
+    # Fetch all faculty for dropdown
+    cursor.execute("SELECT faculty_id, name, dept FROM Faculty ORDER BY name")
+    faculties = cursor.fetchall()
+    
+    timetable_data = None
+    selected_faculty = None
+    faculty_name = None
+    
+    if request.method == 'POST':
+        selected_faculty = request.form.get('faculty_id')
+        
+        # Get faculty name
+        cursor.execute("SELECT name FROM Faculty WHERE faculty_id = %s", (selected_faculty,))
+        faculty_result = cursor.fetchone()
+        if faculty_result:
+            faculty_name = faculty_result['name']
+        
+        # Fetch schedule for the selected faculty
+        query = """
+            SELECT 
+                s.day,
+                s.slot_id,
+                ts.start_time,
+                ts.end_time,
+                sub.sub_name,
+                s.room_no,
+                b.batch_id
+            FROM Schedule s
+            JOIN Time_Slots ts ON s.slot_id = ts.slot_id
+            JOIN Subjects sub ON s.sub_code = sub.sub_code
+            JOIN Batches b ON s.batch_id = b.batch_id
+            WHERE s.faculty_id = %s
+            ORDER BY 
+                FIELD(s.day, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'),
+                ts.start_time
+        """
+        cursor.execute(query, (selected_faculty,))
+        schedule_records = cursor.fetchall()
+        
+        # Fetch all time slots
+        cursor.execute("SELECT slot_id, start_time, end_time FROM Time_Slots ORDER BY start_time")
+        all_slots = cursor.fetchall()
+        
+        # Build timetable grid structure
+        days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
+        timetable_grid = {}
+        
+        # Initialize grid
+        for slot in all_slots:
+            slot_key = f"{slot['start_time']}-{slot['end_time']}"
+            timetable_grid[slot_key] = {
+                'slot_id': slot['slot_id'],
+                'Monday': '--',
+                'Tuesday': '--',
+                'Wednesday': '--',
+                'Thursday': '--',
+                'Friday': '--'
+            }
+        
+        # Fill in the schedule data
+        for record in schedule_records:
+            slot_key = f"{record['start_time']}-{record['end_time']}"
+            day = record['day']
+            cell_data = f"{record['sub_name']}<br><small>{record['room_no']} | {record['batch_id']}</small>"
+            if slot_key in timetable_grid and day in timetable_grid[slot_key]:
+                timetable_grid[slot_key][day] = cell_data
+        
+        timetable_data = {
+            'grid': timetable_grid,
+            'days': days,
+            'slots': all_slots
+        }
+    
+    cursor.close()
+    conn.close()
+    
+    return render_template('faculty_timetable.html', 
+                         faculties=faculties, 
+                         timetable=timetable_data,
+                         selected_faculty=selected_faculty,
+                         faculty_name=faculty_name)
+
+@app.route('/room_availability', methods=['GET', 'POST'])
+def room_availability():
+    """
+    View Room Availability - See which rooms are free/occupied
+    """
+    if not session.get('logged_in'):
+        flash('Please login first.', 'error')
+        return redirect(url_for('login'))
+    
+    conn = get_db_connection()
+    if not conn:
+        flash('Database connection failed!', 'error')
+        return redirect(url_for('dashboard'))
+    
+    cursor = conn.cursor(dictionary=True)
+    
+    # Fetch all rooms for dropdown
+    cursor.execute("SELECT room_no, capacity, room_type FROM Rooms ORDER BY room_no")
+    rooms = cursor.fetchall()
+    
+    timetable_data = None
+    selected_room = None
+    room_info = None
+    
+    if request.method == 'POST':
+        selected_room = request.form.get('room_no')
+        
+        # Get room info
+        cursor.execute("SELECT room_no, capacity, room_type FROM Rooms WHERE room_no = %s", (selected_room,))
+        room_info = cursor.fetchone()
+        
+        # Fetch schedule for the selected room
+        query = """
+            SELECT 
+                s.day,
+                s.slot_id,
+                ts.start_time,
+                ts.end_time,
+                sub.sub_name,
+                f.name as faculty_name,
+                b.batch_id
+            FROM Schedule s
+            JOIN Time_Slots ts ON s.slot_id = ts.slot_id
+            JOIN Subjects sub ON s.sub_code = sub.sub_code
+            JOIN Faculty f ON s.faculty_id = f.faculty_id
+            JOIN Batches b ON s.batch_id = b.batch_id
+            WHERE s.room_no = %s
+            ORDER BY 
+                FIELD(s.day, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'),
+                ts.start_time
+        """
+        cursor.execute(query, (selected_room,))
+        schedule_records = cursor.fetchall()
+        
+        # Fetch all time slots
+        cursor.execute("SELECT slot_id, start_time, end_time FROM Time_Slots ORDER BY start_time")
+        all_slots = cursor.fetchall()
+        
+        # Build timetable grid structure
+        days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
+        timetable_grid = {}
+        
+        # Initialize grid with "Free" status
+        for slot in all_slots:
+            slot_key = f"{slot['start_time']}-{slot['end_time']}"
+            timetable_grid[slot_key] = {
+                'slot_id': slot['slot_id'],
+                'Monday': '<span class="free">Free</span>',
+                'Tuesday': '<span class="free">Free</span>',
+                'Wednesday': '<span class="free">Free</span>',
+                'Thursday': '<span class="free">Free</span>',
+                'Friday': '<span class="free">Free</span>'
+            }
+        
+        # Fill in occupied slots
+        for record in schedule_records:
+            slot_key = f"{record['start_time']}-{record['end_time']}"
+            day = record['day']
+            cell_data = f"<span class='occupied'>{record['sub_name']}<br><small>{record['batch_id']} | {record['faculty_name']}</small></span>"
+            if slot_key in timetable_grid and day in timetable_grid[slot_key]:
+                timetable_grid[slot_key][day] = cell_data
+        
+        timetable_data = {
+            'grid': timetable_grid,
+            'days': days,
+            'slots': all_slots
+        }
+    
+    cursor.close()
+    conn.close()
+    
+    return render_template('room_availability.html', 
+                         rooms=rooms, 
+                         timetable=timetable_data,
+                         selected_room=selected_room,
+                         room_info=room_info)
+
 # ==================== ERROR HANDLERS ====================
 
 @app.errorhandler(404)

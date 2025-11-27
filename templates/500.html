@@ -1,0 +1,56 @@
+{% extends "layout.html" %}
+
+{% block title %}500 - Server Error{% endblock %}
+
+{% block content %}
+<div class="error-container">
+    <div class="error-content">
+        <div class="error-icon">⚠️</div>
+        <h1>500</h1>
+        <h2>Internal Server Error</h2>
+        <p>Something went wrong on our end. Please try again later or contact support.</p>
+        <div class="error-actions">
+            <a href="{{ url_for('dashboard') }}" class="btn btn-primary">Go to Dashboard</a>
+            <a href="{{ url_for('login') }}" class="btn btn-outline">Go to Login</a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .error-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 60vh;
+    }
+    .error-content {
+        text-align: center;
+        padding: 2rem;
+    }
+    .error-icon {
+        font-size: 5rem;
+        margin-bottom: 1rem;
+    }
+    .error-content h1 {
+        font-size: 6rem;
+        color: #ef4444;
+        margin: 0;
+        line-height: 1;
+    }
+    .error-content h2 {
+        font-size: 2rem;
+        color: #1e293b;
+        margin: 1rem 0;
+    }
+    .error-content p {
+        color: #64748b;
+        font-size: 1.1rem;
+        margin-bottom: 2rem;
+    }
+    .error-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+    }
+</style>
+{% endblock %}

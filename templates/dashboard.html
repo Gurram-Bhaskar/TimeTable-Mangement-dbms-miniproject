@@ -21,21 +21,28 @@
             <div class="card-icon">📅</div>
             <h3>View Timetable</h3>
             <p>View complete timetable for any batch in grid format</p>
-            <a href="{{ url_for('view_timetable') }}" class="btn btn-primary">Go to View Timetable</a>
+            <a href="{{ url_for('view_timetable') }}" class="btn btn-primary">View Batch Timetable</a>
+        </div>
+        
+        <div class="dashboard-card">
+            <div class="card-icon">🗑️</div>
+            <h3>Manage Schedule</h3>
+            <p>View and delete existing schedule entries</p>
+            <a href="{{ url_for('manage_schedule') }}" class="btn btn-primary">Manage Entries</a>
         </div>
         
         <div class="dashboard-card">
             <div class="card-icon">👨‍🏫</div>
-            <h3>Faculty Management</h3>
-            <p>Manage faculty information and assignments</p>
-            <button class="btn btn-secondary" disabled>Coming Soon</button>
+            <h3>Faculty Timetable</h3>
+            <p>View individual faculty schedules</p>
+            <a href="{{ url_for('faculty_timetable') }}" class="btn btn-primary">View Faculty Schedule</a>
         </div>
         
         <div class="dashboard-card">
             <div class="card-icon">🏫</div>
-            <h3>Room Management</h3>
-            <p>Manage classroom and lab information</p>
-            <button class="btn btn-secondary" disabled>Coming Soon</button>
+            <h3>Room Availability</h3>
+            <p>Check which rooms are free or occupied</p>
+            <a href="{{ url_for('room_availability') }}" class="btn btn-primary">Check Rooms</a>
         </div>
     </div>
     
@@ -47,6 +54,9 @@
             <li>✅ Visual timetable grid for better planning</li>
             <li>✅ Real-time validation and error handling</li>
             <li>✅ Support for both theory and lab sessions</li>
+            <li>✅ Faculty-wise timetable view</li>
+            <li>✅ Room availability checker</li>
+            <li>✅ Delete schedule entries</li>
         </ul>
     </div>
 </div>

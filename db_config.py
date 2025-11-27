@@ -1,10 +1,9 @@
-# Database Configuration
-# Update these values according to your MySQL setup
+# Database Configuration for PythonAnywhere
 import os
 
 DB_CONFIG = {
-    'host': os.environ.get('DB_HOST', 'localhost'),
-    'user': os.environ.get('DB_USER', 'root'),
-    'password': os.environ.get('DB_PASSWORD', 'bhaskar#1234'),
-    'database': os.environ.get('DB_NAME', 'timetable_db')
+    'host': 'Atomic00.mysql.pythonanywhere-services.com',
+    'user': 'Atomic00',
+    'password': 'bhaskar#1234',  # Put your actual MySQL password here
+    'database': 'Atomic00$timetable_db'
 }

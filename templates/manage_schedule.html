@@ -1,0 +1,82 @@
+{% extends "layout.html" %}
+
+{% block title %}Manage Schedule - Timetable System{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <div class="page-header">
+        <h1>Manage Schedule</h1>
+        <p>View and delete schedule entries</p>
+    </div>
+    
+    <div class="filter-container">
+        <form method="POST" action="{{ url_for('manage_schedule') }}" class="filter-form">
+            <div class="form-group inline-group">
+                <label for="batch_id">Select Batch:</label>
+                <select id="batch_id" name="batch_id" required>
+                    <option value="">-- Choose a Batch --</option>
+                    {% for batch in batches %}
+                    <option value="{{ batch.batch_id }}" {% if selected_batch == batch.batch_id %}selected{% endif %}>
+                        {{ batch.batch_id }} - Semester {{ batch.semester }} ({{ batch.dept }})
+                    </option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn btn-primary">View Schedule</button>
+            </div>
+        </form>
+    </div>
+    
+    {% if schedules %}
+    <div class="table-section">
+        <h2>Schedule Entries for {{ selected_batch }}</h2>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Day</th>
+                    <th>Time</th>
+                    <th>Subject</th>
+                    <th>Faculty</th>
+                    <th>Room</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for schedule in schedules %}
+                <tr>
+                    <td>{{ schedule.day }}</td>
+                    <td>{{ schedule.start_time }} - {{ schedule.end_time }}</td>
+                    <td>{{ schedule.sub_name }}</td>
+                    <td>{{ schedule.faculty_name }}</td>
+                    <td>{{ schedule.room_no }}</td>
+                    <td>
+                        <a href="{{ url_for('delete_schedule', alloc_id=schedule.alloc_id) }}" 
+                           class="btn btn-danger btn-small"
+                           onclick="return confirm('Are you sure you want to delete this schedule entry?');">
+                            🗑️ Delete
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% elif selected_batch %}
+    <div class="empty-state">
+        <div class="empty-icon">📭</div>
+        <h3>No Schedule Found</h3>
+        <p>No schedule entries exist for {{ selected_batch }}.</p>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon">📋</div>
+        <h3>Select a Batch</h3>
+        <p>Please select a batch from the dropdown above to view and manage its schedule.</p>
+    </div>
+    {% endif %}
+    
+    <div class="page-actions">
+        <a href="{{ url_for('dashboard') }}" class="btn btn-outline">← Back to Dashboard</a>
+        <a href="{{ url_for('add_schedule') }}" class="btn btn-primary">+ Add New Schedule</a>
+    </div>
+</div>
+{% endblock %}

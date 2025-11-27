@@ -647,3 +647,86 @@ body {
         font-size: 1.8rem;
     }
 }
+
+/* ========== DATA TABLE STYLES ========== */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--card-bg);
+    box-shadow: var(--shadow-md);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-top: var(--spacing-md);
+}
+
+.data-table thead {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    color: white;
+}
+
+.data-table th {
+    padding: var(--spacing-md);
+    text-align: left;
+    font-weight: 600;
+}
+
+.data-table td {
+    padding: var(--spacing-md);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.data-table tbody tr:hover {
+    background-color: #f1f5f9;
+}
+
+.data-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* ========== BUTTON VARIANTS ========== */
+.btn-danger {
+    background-color: var(--error-color);
+    color: white;
+}
+
+.btn-danger:hover {
+    background-color: #dc2626;
+    transform: translateY(-2px);
+}
+
+.btn-small {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+}
+
+/* ========== TABLE SECTION ========== */
+.table-section {
+    margin-top: var(--spacing-lg);
+}
+
+.table-section h2 {
+    color: var(--primary-color);
+    margin-bottom: var(--spacing-md);
+}
+
+/* ========== PAGE ACTIONS ========== */
+.page-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-lg);
+    padding-top: var(--spacing-md);
+    border-top: 1px solid var(--border-color);
+}
+
+/* ========== NAVIGATION RESPONSIVE ========== */
+@media (max-width: 900px) {
+    .nav-links {
+        flex-wrap: wrap;
+        gap: var(--spacing-xs);
+    }
+    
+    .nav-links a {
+        font-size: 0.85rem;
+        padding: 0.4rem 0.6rem;
+    }
+}
