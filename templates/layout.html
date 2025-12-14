@@ -1,29 +1,47 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Timetable Management System{% endblock %}</title>
+    <!-- Google Fonts - Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
+    <!-- Animated Background -->
+    <div class="animated-bg">
+        <div class="gradient-orb orb-1"></div>
+        <div class="gradient-orb orb-2"></div>
+        <div class="gradient-orb orb-3"></div>
+    </div>
+
     <!-- Navigation Bar -->
     <nav class="navbar">
         <div class="nav-container">
             <div class="nav-brand">
                 <h2>🎓 Timetable Management System</h2>
             </div>
-            {% if session.get('logged_in') %}
-            <div class="nav-links">
-                <a href="{{ url_for('dashboard') }}">Dashboard</a>
-                <a href="{{ url_for('add_schedule') }}">Add Schedule</a>
-                <a href="{{ url_for('view_timetable') }}">View Timetable</a>
-                <a href="{{ url_for('manage_schedule') }}">Manage</a>
-                <a href="{{ url_for('faculty_timetable') }}">Faculty</a>
-                <a href="{{ url_for('room_availability') }}">Rooms</a>
-                <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+            <div class="nav-right">
+                {% if session.get('logged_in') %}
+                <div class="nav-links">
+                    <a href="{{ url_for('dashboard') }}">Dashboard</a>
+                    <a href="{{ url_for('add_schedule') }}">Add Schedule</a>
+                    <a href="{{ url_for('view_timetable') }}">View Timetable</a>
+                    <a href="{{ url_for('manage_schedule') }}">Manage</a>
+                    <a href="{{ url_for('faculty_timetable') }}">Faculty</a>
+                    <a href="{{ url_for('room_availability') }}">Rooms</a>
+                    <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+                </div>
+                {% endif %}
+                <!-- Theme Toggle -->
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                    <span class="sun-icon">☀️</span>
+                    <span class="moon-icon">🌙</span>
+                </button>
             </div>
-            {% endif %}
         </div>
     </nav>
 
@@ -52,6 +70,21 @@
     </footer>
 
     <script>
+        // Theme Toggle Functionality
+        const themeToggle = document.getElementById('themeToggle');
+        const html = document.documentElement;
+        
+        // Load saved theme or default to light
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        html.setAttribute('data-theme', savedTheme);
+        
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        });
+
         // Auto-hide flash messages after 5 seconds
         setTimeout(function() {
             const flashMessages = document.querySelectorAll('.flash-message');

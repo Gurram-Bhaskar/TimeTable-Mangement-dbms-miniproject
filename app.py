@@ -233,7 +233,7 @@ def view_timetable():
         all_slots = cursor.fetchall()
         
         # Build timetable grid structure
-        days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
+        days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
         timetable_grid = {}
         
         # Initialize grid
@@ -245,7 +245,8 @@ def view_timetable():
                 'Tuesday': '--',
                 'Wednesday': '--',
                 'Thursday': '--',
-                'Friday': '--'
+                'Friday': '--',
+                'Saturday': '--'
             }
         
         # Fill in the schedule data
@@ -412,7 +413,7 @@ def faculty_timetable():
         all_slots = cursor.fetchall()
         
         # Build timetable grid structure
-        days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
+        days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
         timetable_grid = {}
         
         # Initialize grid
@@ -424,7 +425,8 @@ def faculty_timetable():
                 'Tuesday': '--',
                 'Wednesday': '--',
                 'Thursday': '--',
-                'Friday': '--'
+                'Friday': '--',
+                'Saturday': '--'
             }
         
         # Fill in the schedule data
@@ -509,7 +511,7 @@ def room_availability():
         all_slots = cursor.fetchall()
         
         # Build timetable grid structure
-        days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
+        days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
         timetable_grid = {}
         
         # Initialize grid with "Free" status
@@ -521,7 +523,8 @@ def room_availability():
                 'Tuesday': '<span class="free">Free</span>',
                 'Wednesday': '<span class="free">Free</span>',
                 'Thursday': '<span class="free">Free</span>',
-                'Friday': '<span class="free">Free</span>'
+                'Friday': '<span class="free">Free</span>',
+                'Saturday': '<span class="free">Free</span>'
             }
         
         # Fill in occupied slots
